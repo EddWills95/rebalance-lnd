@@ -152,8 +152,10 @@ class Rebalance:
             key=lambda c: self.get_sort_key(c),
             reverse=reverse
         )
-        for channel in sorted_channels:
-            self.show_channel(channel, reverse)
+        # for channel in sorted_channels:
+        #     self.show_channel(channel, reverse)
+
+        return sorted_channels
 
     def show_channel(self, channel, reverse=False):
         rebalance_amount = self.get_rebalance_amount(channel)
@@ -536,7 +538,8 @@ def get_columns():
         return 80
 
 
-success = main()
-if success:
-    sys.exit(0)
-sys.exit(1)
+if __name__ == '__main__':
+    success = main()
+    if success:
+        sys.exit(0)
+    sys.exit(1)

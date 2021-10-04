@@ -4,4 +4,6 @@ protobuf==3.18.0
 six==1.16.0
 yachalk==0.1.4
 flask==2.0.1
+flask_socketio==5.1.1
 python-dotenv==0.19.0
+jsonpickle==2.0.0

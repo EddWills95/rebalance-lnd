@@ -22,7 +22,8 @@ class Rebalance:
         self.output = Output(self.lnd)
         self.min_amount = arguments.min_amount
         self.arguments = arguments
-        self.first_hop_channel_id = self.parse_channel_id(vars(arguments)["from"])
+        self.first_hop_channel_id = self.parse_channel_id(
+            vars(arguments)["from"])
         self.last_hop_channel_id = self.parse_channel_id(arguments.to)
         self.first_hop_channel = None
         self.last_hop_channel = None
@@ -80,7 +81,8 @@ class Rebalance:
     def get_amount(self):
         if self.arguments.amount:
             if self.arguments.reckless and self.arguments.amount > MAX_SATOSHIS_PER_TRANSACTION:
-                self.output.print_line(format_error("Trying to send wumbo transaction"))
+                self.output.print_line(format_error(
+                    "Trying to send wumbo transaction"))
                 return self.arguments.amount
             else:
                 return min(self.arguments.amount, MAX_SATOSHIS_PER_TRANSACTION)
@@ -92,7 +94,8 @@ class Rebalance:
             can_send = self.get_amount_can_send(self.first_hop_channel)
 
             if can_send < 0:
-                from_alias = self.lnd.get_node_alias(self.first_hop_channel.remote_pubkey)
+                from_alias = self.lnd.get_node_alias(
+                    self.first_hop_channel.remote_pubkey)
                 print(
                     f"Error: source channel {format_channel_id(self.first_hop_channel.chan_id)} to "
                     f"{format_alias(from_alias)} needs to {chalk.green('receive')} funds to be within bounds,"
@@ -108,7 +111,8 @@ class Rebalance:
             can_receive = self.get_amount_can_receive(self.last_hop_channel)
 
             if can_receive < 0:
-                to_alias = self.lnd.get_node_alias(self.last_hop_channel.remote_pubkey)
+                to_alias = self.lnd.get_node_alias(
+                    self.last_hop_channel.remote_pubkey)
                 print(
                     f"Error: target channel {format_channel_id(self.last_hop_channel.chan_id)} to "
                     f"{format_alias(to_alias)} needs to {chalk.green('send')} funds to be within bounds, "
@@ -118,7 +122,8 @@ class Rebalance:
                 return 0
 
         if self.first_hop_channel and self.last_hop_channel:
-            amount = max(min(can_receive, should_send), min(can_send, should_receive))
+            amount = max(min(can_receive, should_send),
+                         min(can_send, should_receive))
         elif self.first_hop_channel:
             amount = should_send
         else:
@@ -167,16 +172,23 @@ class Rebalance:
         own_ppm = self.lnd.get_ppm_to(channel.chan_id)
         remote_ppm = self.lnd.get_ppm_from(channel.chan_id)
         print(f"Channel ID:       {format_channel_id(channel.chan_id)}")
-        print(f"Alias:            {format_alias(self.lnd.get_node_alias(channel.remote_pubkey))}")
-        print(f"Pubkey:           {format_boring_string(channel.remote_pubkey)}")
-        print(f"Channel Point:    {format_boring_string(channel.channel_point)}")
+        print(
+            f"Alias:            {format_alias(self.lnd.get_node_alias(channel.remote_pubkey))}")
+        print(
+            f"Pubkey:           {format_boring_string(channel.remote_pubkey)}")
+        print(
+            f"Channel Point:    {format_boring_string(channel.channel_point)}")
         print(f"Local ratio:      {get_local_ratio(channel):.3f}")
-        print(f"Fee rates:        {format_ppm(own_ppm)} (own), {format_ppm(remote_ppm)} (peer)")
+        print(
+            f"Fee rates:        {format_ppm(own_ppm)} (own), {format_ppm(remote_ppm)} (peer)")
         print(f"Capacity:         {channel.capacity:10,}")
-        print(f"Remote available: {format_amount(get_remote_available(channel), 10)}")
-        print(f"Local available:  {format_amount_green(get_local_available(channel), 10)}")
+        print(
+            f"Remote available: {format_amount(get_remote_available(channel), 10)}")
+        print(
+            f"Local available:  {format_amount_green(get_local_available(channel), 10)}")
         print(f"Rebalance amount: {rebalance_amount_formatted}")
-        print(get_capacity_and_ratio_bar(channel, self.lnd.get_max_channel_capacity()))
+        print(get_capacity_and_ratio_bar(
+            channel, self.lnd.get_max_channel_capacity()))
         print("")
 
     def list_channels_compact(self):
@@ -184,13 +196,17 @@ class Rebalance:
             self.lnd.get_channels(active_only=True),
             key=lambda c: self.get_sort_key(c),
             reverse=False
-            )
+        )
         for candidate in candidates:
             id_formatted = format_channel_id(candidate.chan_id)
-            local_formatted = format_amount_green(get_local_available(candidate), 11)
-            remote_formatted = format_amount(get_remote_available(candidate), 11)
-            alias_formatted = format_alias(self.lnd.get_node_alias(candidate.remote_pubkey))
-            print(f"{id_formatted} | {local_formatted} | {remote_formatted} | {alias_formatted}")
+            local_formatted = format_amount_green(
+                get_local_available(candidate), 11)
+            remote_formatted = format_amount(
+                get_remote_available(candidate), 11)
+            alias_formatted = format_alias(
+                self.lnd.get_node_alias(candidate.remote_pubkey))
+            print(
+                f"{id_formatted} | {local_formatted} | {remote_formatted} | {alias_formatted}")
 
     def start(self):
         if self.arguments.list_candidates and self.arguments.show_only:
@@ -212,19 +228,24 @@ class Rebalance:
             sys.exit(0)
 
         if self.first_hop_channel_id == -1:
-            self.first_hop_channel = random.choice(self.get_first_hop_candidates())
+            self.first_hop_channel = random.choice(
+                self.get_first_hop_candidates())
         else:
-            self.first_hop_channel = self.get_channel_for_channel_id(self.first_hop_channel_id)
+            self.first_hop_channel = self.get_channel_for_channel_id(
+                self.first_hop_channel_id)
 
         if self.last_hop_channel_id == -1:
-            self.last_hop_channel = random.choice(self.get_last_hop_candidates())
+            self.last_hop_channel = random.choice(
+                self.get_last_hop_candidates())
         else:
-            self.last_hop_channel = self.get_channel_for_channel_id(self.last_hop_channel_id)
+            self.last_hop_channel = self.get_channel_for_channel_id(
+                self.last_hop_channel_id)
 
         amount = self.get_amount()
         if self.arguments.percentage:
             new_amount = int(round(amount * self.arguments.percentage / 100))
-            print(f"Using {self.arguments.percentage}% of amount {format_amount(amount)}: {format_amount(new_amount)}")
+            print(
+                f"Using {self.arguments.percentage}% of amount {format_amount(amount)}: {format_amount(new_amount)}")
             amount = new_amount
 
         if amount == 0:
@@ -297,7 +318,8 @@ def main():
         sys.exit(1)
 
     if arguments.reckless and not arguments.fee_limit and not arguments.fee_ppm_limit:
-        print("You need to specify a fee limit (-fee-limit or --fee-ppm-limit) for --reckless")
+        print(
+            "You need to specify a fee limit (-fee-limit or --fee-ppm-limit) for --reckless")
         argument_parser.print_help()
         sys.exit(1)
 
@@ -321,7 +343,7 @@ def get_argument_parser():
         help="(default ~/.lnd) lnd directory",
     )
     parser.add_argument(
-        "--network", 
+        "--network",
         default='mainnet',
         dest='network',
         help='(default mainnet) lnd network (mainnet, testnet, simnet, ...)'

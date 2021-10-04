@@ -4,6 +4,7 @@ import os
 from functools import lru_cache
 from os.path import expanduser
 
+from google.protobuf.json_format import MessageToJson
 import grpc
 
 from grpc_generated import router_pb2 as lnrouter
@@ -28,7 +29,7 @@ class Lnd:
                 lnd_dir = lnd_dir2
         else:
             lnd_dir = expanduser(lnd_dir)
-        
+
         combined_credentials = self.get_credentials(lnd_dir, network)
         channel_options = [
             ("grpc.max_message_length", MESSAGE_SIZE_MB),
@@ -165,7 +166,8 @@ class Lnd:
         last_hop.mpp_record.payment_addr = payment_request.payment_addr
         last_hop.mpp_record.total_amt_msat = payment_request.num_msat
         request = lnrouter.SendToRouteRequest(route=route)
-        request.payment_hash = self.hex_string_to_bytes(payment_request.payment_hash)
+        request.payment_hash = self.hex_string_to_bytes(
+            payment_request.payment_hash)
         return self.router_stub.SendToRoute(request)
 
     @staticmethod

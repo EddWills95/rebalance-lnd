@@ -152,8 +152,8 @@ class Rebalance:
             key=lambda c: self.get_sort_key(c),
             reverse=reverse
         )
-        # for channel in sorted_channels:
-        #     self.show_channel(channel, reverse)
+        for channel in sorted_channels:
+            self.show_channel(channel, reverse)
 
         return sorted_channels
 

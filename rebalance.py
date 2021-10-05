@@ -152,10 +152,14 @@ class Rebalance:
             key=lambda c: self.get_sort_key(c),
             reverse=reverse
         )
-        for channel in sorted_channels:
-            self.show_channel(channel, reverse)
+        candidates = []
 
-        return sorted_channels
+        for channel in sorted_channels:
+            chan = self.show_channel(channel, reverse)
+            if chan:
+                candidates.append(chan)
+
+        return candidates
 
     def show_channel(self, channel, reverse=False):
         rebalance_amount = self.get_rebalance_amount(channel)
@@ -192,6 +196,7 @@ class Rebalance:
         print(get_capacity_and_ratio_bar(
             channel, self.lnd.get_max_channel_capacity()))
         print("")
+        return channel
 
     def list_channels_compact(self):
         candidates = sorted(
@@ -215,19 +220,19 @@ class Rebalance:
             channel_id = self.parse_channel_id(self.arguments.show_only)
             channel = self.get_channel_for_channel_id(channel_id)
             self.show_channel(channel)
-            sys.exit(0)
+            # sys.exit(0)
 
         if self.arguments.listcompact:
-            self.list_channels_compact()
-            sys.exit(0)
+            return self.list_channels_compact()
+            # sys.exit(0)
 
         if self.arguments.list_candidates:
             incoming = self.arguments.incoming is None or self.arguments.incoming
             if incoming:
-                self.list_channels(reverse=False)
+                return self.list_channels(reverse=False)
             else:
-                self.list_channels(reverse=True)
-            sys.exit(0)
+                return self.list_channels(reverse=True)
+            # sys.exit(0)
 
         if self.first_hop_channel_id == -1:
             self.first_hop_channel = random.choice(
@@ -252,12 +257,12 @@ class Rebalance:
 
         if amount == 0:
             print(f"Amount is {format_amount(0)} sat, nothing to do")
-            sys.exit(0)
+            # sys.exit(0)
 
         if amount < self.min_amount:
             print(f"Amount {format_amount(amount)} sat is below limit of {format_amount(self.min_amount)} sat, "
                   f"nothing to do (see --min-amount)")
-            sys.exit(0)
+            # sys.exit(0)
 
         if self.arguments.reckless:
             self.output.print_line(format_error("Reckless mode enabled!"))
@@ -538,8 +543,8 @@ def get_columns():
         return 80
 
 
-if __name__ == '__main__':
-    success = main()
-    if success:
-        sys.exit(0)
-    sys.exit(1)
+# if __name__ == '__main__':
+#     success = main()
+#     if success:
+#         sys.exit(0)
+#     sys.exit(1)

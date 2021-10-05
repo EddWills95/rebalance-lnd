@@ -1,5 +1,15 @@
 # rebalance-lnd
 
+## REST_API
+
+In development
+To run the REST/Websocket sever just fire up
+
+```
+pip install -r requirements.txt
+python rest_api.py
+```
+
 Using this script you can easily rebalance individual channels of your `lnd` node by
 sending funds out one channel, through the lightning network, back to yourself.
 
@@ -52,9 +62,10 @@ If this fails, make sure you are running Python 3. You might want to try `pip3` 
 
 To test if your installation works, you can run `rebalance.py` without any arguments.
 Depending on your system, you can do this in one of the following ways:
- - `python3 rebalance.py`
- - `./rebalance.py`
- - `python rebalance.py`
+
+-   `python3 rebalance.py`
+-   `./rebalance.py`
+-   `python rebalance.py`
 
 ## Updating
 
@@ -67,6 +78,7 @@ Do not forget to update the Python dependencies as described above.
 # Usage
 
 ### List of channels
+
 Run `rebalance.py -l` (or `rebalance.py -l -i`) to see a list of channels which can be rebalanced.
 This list only contains channels where you should increase the outbound liquidity (you can specify `--show-all` to see
 all channels).
@@ -94,22 +106,24 @@ By sending 116,636 satoshis to yourself using this channel, an outbound liquidit
 This number is shown as "Rebalance amount" (where negative amounts indicate that you need to increase your inbound
 liquidity).
 
-The last line shows a graphical representation of the channel. 
+The last line shows a graphical representation of the channel.
 The total width is determined by the channel's capacity, where your largest channel (maximum capacity) occupies the full
 width of your terminal.
 The bar (`█`) indicates the funds on the local side of the channel, i.e. your outbound liquidity.
 
 ## Rebalancing a channel
+
 ### Basic Scenario
+
 In this scenario you already know what you want to do, possibly because you identified a channel with high
 outbound liquidity.
 
 Let us assume you want to move some funds from this channel to another channel with low outbound
 liquidity:
 
-- move 100,000 satoshis around
-- take those funds (plus fees) out of channel `11111111`
-- move those funds back into channel `22222222`
+-   move 100,000 satoshis around
+-   take those funds (plus fees) out of channel `11111111`
+-   move those funds back into channel `22222222`
 
 You can achieve this by running:
 
@@ -128,10 +142,10 @@ If you do not specify the amount, i.e. you invoke `rebalance.py --from 11111111 
 automatically determines the amount.
 For this two main constraints are taken into consideration:
 
-After the rebalance transaction is finished, 
+After the rebalance transaction is finished,
 
- - the destination channel (`22222222`) should have (up to) 1,000,000 satoshis outbound liquidity
- - the source channel (`11111111`) should have (at least) 1,000,000 satoshis outbound liquidity
+-   the destination channel (`22222222`) should have (up to) 1,000,000 satoshis outbound liquidity
+-   the source channel (`11111111`) should have (at least) 1,000,000 satoshis outbound liquidity
 
 If the source channel has enough surplus outbound liquidity, the script constructs a transaction that ensures
 1,000,000 satoshis of outbound liquidity in the destination channel.
@@ -143,7 +157,7 @@ Note that for smaller channels these criteria cannot be met.
 If that is the case, a ratio of 50% is targeted instead: the destination channel receives up to 50% outbound
 liquidity, and for the sending channel at least 50% outbound liquidity are maintained.
 
-### Only specifying one channel 
+### Only specifying one channel
 
 Instead of specifying both `--from` and `--to`, you can also just pick one of those options.
 The script then considers all of your other channels as possible "partners", still taking into account the constraints
@@ -157,7 +171,7 @@ Likewise, when only specifying `--from`, the script only considers target channe
 satoshis of outbound liquidity after receiving the payment.
 
 If you also let the script determine the amount, e.g. you run `rebalance.py --to 22222222`, the script first
-computes the amount that is necessary to reach 1,000,000 satoshis of outbound liquidity in channel `22222222`, 
+computes the amount that is necessary to reach 1,000,000 satoshis of outbound liquidity in channel `22222222`,
 and then tries to find source channels for the computed amount.
 
 ### Safety Checks and Limitations
@@ -199,6 +213,7 @@ possible future earnings (2).
 **If you really want to, you may disable these safety checks with `--reckless`.**
 
 ### Example
+
 You have lots of funds in channel `11111111` and nothing in channel `22222222`.
 You would like to send funds through channel `11111111` (source channel) through the lightning network, and finally
 back into channel `22222222`.
@@ -252,6 +267,7 @@ rebalance transactions without earning anything in return.
 Please make sure to set realistic fee rates, which at best are already known to attract forwardings.
 
 ### Command line arguments
+
 ```
 usage: rebalance.py [-h] [--lnddir LNDDIR] [--network NETWORK] [--grpc GRPC]
                     [-l] [--show-all | --show-only CHANNEL | -c] [-o | -i]
@@ -344,11 +360,13 @@ Feel free to submit issues and pull requests on https://github.com/C-Otto/rebala
 
 You can also send donations via keysend.
 For example, to send 500 satoshis to C-Otto with a message "Thank you for rebalance-lnd":
+
 ```
 lncli sendpayment --amt=500 --data 7629168=5468616e6b20796f7520666f7220726562616c616e63652d6c6e64 --keysend --dest=027ce055380348d7812d2ae7745701c9f93e70c1adeb2657f053f91df4f2843c71
 ```
 
 You can also specify an arbitrary message:
+
 ```
 lncli sendpayment --amt=500 --data 7629168=$(echo -n "your message here" | xxd -pu -c 10000) --keysend --dest=027ce055380348d7812d2ae7745701c9f93e70c1adeb2657f053f91df4f2843c71
 ```
